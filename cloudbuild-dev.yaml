@@ -1,0 +1,39 @@
+steps:
+  - name: "node:10.16.3"
+    id: root-install
+    entrypoint: npm
+    args: ["install"]
+
+  - name: "node:10.16.3"
+    id: create-appointment-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/create-appointment
+
+  - name: "node:10.16.3"
+    id: delete-appointment-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/delete-appointment
+
+  - name: "node:10.16.3"
+    id: query-appointment-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/query-appointment
+
+  - name: "node:10.16.3"
+    id: update-appointment-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/update-appointment
+
+  - name: "node:10.16.3"
+    id: lint
+    entrypoint: npm
+    args: ["run", "lint"]
+
+  - name: "node:10.16.3"
+    id: test-unit
+    entrypoint: npm
+    args: ["run", "test"]

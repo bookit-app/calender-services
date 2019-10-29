@@ -1,0 +1,179 @@
+steps:
+  - name: "node:10.16.3"
+    id: root-install
+    entrypoint: npm
+    args: ["install"]
+
+  - name: "node:10.16.3"
+    id: create-profile-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/create-profile
+
+  - name: "node:10.16.3"
+    id: delete-profile-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/delete-profile
+
+  - name: "node:10.16.3"
+    id: query-profile-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/query-profile
+
+  - name: "node:10.16.3"
+    id: update-profile-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/update-profile
+
+  # Validate build
+  - name: "node:10.16.3"
+    id: lint
+    entrypoint: npm
+    args: ["run", "lint"]
+
+  - name: "node:10.16.3"
+    id: test-unit
+    entrypoint: npm
+    args: ["run", "test"]
+
+  # Build and push docker image: Create Profile
+  - name: "gcr.io/cloud-builders/docker"
+    id: create-profile:0.0.1
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=create-profile
+      - -t
+      - gcr.io/sweng-581-capstone/create-profile:0.0.1
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-create-profile
+    waitFor:
+      - create-profile:0.0.1
+    args: ["push", "gcr.io/sweng-581-capstone/create-profile:0.0.1"]
+
+  # Build and push docker image: Delete Profile
+  - name: "gcr.io/cloud-builders/docker"
+    id: delete-profile:0.0.1
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=delete-profile
+      - -t
+      - gcr.io/sweng-581-capstone/delete-profile:0.0.1
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-delete-profile
+    waitFor:
+      - delete-profile:0.0.1
+    args: ["push", "gcr.io/sweng-581-capstone/delete-profile:0.0.1"]
+
+  # Build and push docker image: Query Profile
+  - name: "gcr.io/cloud-builders/docker"
+    id: query-profile:0.0.1
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=query-profile
+      - -t
+      - gcr.io/sweng-581-capstone/query-profile:0.0.1
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-query-profile
+    waitFor:
+      - query-profile:0.0.1
+    args: ["push", "gcr.io/sweng-581-capstone/query-profile:0.0.1"]
+
+  # Build and push docker image: Update Profile
+  - name: "gcr.io/cloud-builders/docker"
+    id: update-profile:0.0.1
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=update-profile
+      - -t
+      - gcr.io/sweng-581-capstone/update-profile:0.0.1
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-update-profile
+    waitFor:
+      - update-profile:0.0.1
+    args: ["push", "gcr.io/sweng-581-capstone/update-profile:0.0.1"]
+
+  # Deploy to cloud run
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - push-create-profile
+    args:
+      - beta
+      - run
+      - deploy
+      - create-profile
+      - --image=gcr.io/sweng-581-capstone/create-profile:0.0.1
+      - --region=us-central1
+      - --platform=managed
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - push-delete-profile
+    args:
+      - beta
+      - run
+      - deploy
+      - delete-profile
+      - --image=gcr.io/sweng-581-capstone/delete-profile:0.0.1
+      - --region=us-central1
+      - --platform=managed
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - push-query-profile
+    args:
+      - beta
+      - run
+      - deploy
+      - query-profile
+      - --image=gcr.io/sweng-581-capstone/query-profile:0.0.1
+      - --region=us-central1
+      - --platform=managed
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - push-update-profile
+    args:
+      - beta
+      - run
+      - deploy
+      - update-profile
+      - --image=gcr.io/sweng-581-capstone/update-profile:0.0.1
+      - --region=us-central1
+      - --platform=managed
+
+images:
+  - "gcr.io/sweng-581-capstone/create-profile:0.0.1"
+  - "gcr.io/sweng-581-capstone/delete-profile:0.0.1"
+  - "gcr.io/sweng-581-capstone/query-profile:0.0.1"
+  - "gcr.io/sweng-581-capstone/update-profile:0.0.1"
