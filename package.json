@@ -25,11 +25,7 @@
     ],
     "instrument": true
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint && npm run test"
-    }
-  },
+  
   "dependencies": {
     "@google-cloud/firestore": "^2.3.0",
     "@google-cloud/logging-winston": "^2.1.0",

@@ -2,7 +2,7 @@
 
 const { expect } = require('chai');
 const { stub } = require('sinon');
-const mw = require('../../../src/services/query-profile/src/query-options-mw');
+const mw = require('../../../src/services/query-appointment/src/query-options-mw');
 
 describe('query-appointment query-options-mw unit tests', () => {
   it('should set the req.profileQueryOptions', () => {

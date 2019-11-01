@@ -3,7 +3,7 @@
 const ServiceError = require('../../../lib/util/service-error');
 const { errors } = require('../../../lib/constants');
 const { NOT_FOUND } = require('../../../lib/constants').statusCodes;
-const { clone, isEmpty } = require('../../../../node_modules/lodash');
+const { clone, isEmpty } = require('lodash');
 
 module.exports = appointmentRepository => async (req, res, next) => {
   try {

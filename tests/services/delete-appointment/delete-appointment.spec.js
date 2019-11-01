@@ -6,7 +6,7 @@ const { errors } = require('../../../src/lib/constants');
 const repoStub = {
   delete: stub()
 };
-const mw = require('../../../src/services/delete-profile/src/delete-appointment-mw')(
+const mw = require('../../../src/services/delete-appointment/src/delete-appointment-mw')(
   repoStub
 );
 

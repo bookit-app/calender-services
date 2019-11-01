@@ -6,7 +6,7 @@ const { errors } = require('../../../src/lib/constants');
 const repoStub = {
   create: stub()
 };
-const mw = require('../../../src/services/create-profile/src/create-profile-mw')(
+const mw = require('../../../src/services/create-appointment/src/create-appointment-mw')(
   repoStub
 );
 

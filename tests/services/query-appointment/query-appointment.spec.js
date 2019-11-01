@@ -6,7 +6,7 @@ const { errors } = require('../../../src/lib/constants');
 const repoStub = {
   findByProfileId: stub()
 };
-const mw = require('../../../src/services/query-profile/src/query-profile-mw')(
+const mw = require('../../../src/services/query-appointment/src/query-appointment-mw')(
   repoStub
 );
 

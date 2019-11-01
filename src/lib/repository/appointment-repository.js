@@ -4,7 +4,7 @@ const { isEmpty, omit } = require('lodash');
 
 const APPOINTMENT = 'appointments';
 
-class appointmentRepository {
+class AppointmentRepository {
   constructor(firestore) {
     this.firestore = firestore;
   }
@@ -100,11 +100,7 @@ class appointmentRepository {
   }
 }
 
-module.exports = appointmentRepository;
 
-module.exports.appointmentRepositoryInstance = new appointmentRepository(
-  require('./firestore')
-);
 
 /**
  * Processes the options for query and builds a firestore
@@ -143,7 +139,7 @@ function buildSearchRequest(collection, options) {
 
 module.exports = AppointmentRepository;
 module.exports.COLLECTION_NAME = APPOINTMENT;
-module.exports.supportedSearchParams = supportedSearchParams;
-module.exports.appointmentRepositoryInstance = new appointmentRepository(
+//module.exports.supportedSearchParams = supportedSearchParams;
+module.exports.appointmentRepositoryInstance = new AppointmentRepository(
   require('./firestore')
 );
