@@ -55,8 +55,8 @@ describe('appointment-repository: unit tests', () => {
 
     it('should enforce default values on create', () => {
       const testAppointment = {
-        aid: 'TEST-AID',
-        uid: 'TEST-UID',
+        aid: '',
+        uid: '',
         time: '12:30',
         date: '12-10-2019'
       };
@@ -66,8 +66,8 @@ describe('appointment-repository: unit tests', () => {
         () =>
           expect(
             documentReference.create.calledWith({
-              aid: 'TEST-AID',
-              uid: 'TEST-UID',
+              aid: '',
+              uid: '',
               time: '12:30',
               date: '12-10-2019'
             })

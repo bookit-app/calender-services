@@ -4,7 +4,7 @@ const { expect } = require('chai');
 const { stub } = require('sinon');
 const { errors } = require('../../../src/lib/constants');
 const repoStub = {
-  findByProfileId: stub()
+  findByAppointmentId: stub()
 };
 const mw = require('../../../src/services/query-appointment/src/query-appointment-mw')(
   repoStub
@@ -22,7 +22,7 @@ const res = {
   sendStatus: sendStub
 };
 
-const profile = {
+const appointment = {
   aid: 'TEST-AID',
   uid: 'TEST-UID',
   time: '12:30',
@@ -50,7 +50,7 @@ describe('query-appointment unit tests', () => {
   it('should respond with NOT_FOUND when no profile is found', async () => {
     repoStub.findByAppointmentId.resolves(undefined);
     await mw(req, res, next);
-    expect(repoStub.findByProfileId.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.findByAppointmentId.calledWith('TEST-USER')).to.be.true;
     expect(sendStub.calledWith(404));
     expect(next.called).to.be.false;
   });
