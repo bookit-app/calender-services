@@ -12,7 +12,10 @@ const mw = require('../../../src/services/delete-appointment/src/query-appointme
 
 const req = {
   apiUserInfo: {
-    id: 'TEST-USER'
+    id: 'TEST-CLIENT-ID'
+  },
+  params: {
+    appointmentId: 'TEST-APPT'
   }
 };
 
@@ -23,11 +26,12 @@ const res = {
 };
 
 const appointment = {
-  aid: 'TEST-AID',
-  uid: 'TEST-UID',
+  appointmentId: 'TEST-APPT',
+  staffMemberId: 'TEST-STAFF-ID',
+  providerId: 'TEST-PROVIDER-Id',
+  clientId: 'TEST-CLIENT-ID',
   time: '12:30',
   date: '12-10-2019'
-
 };
 
 const next = stub();
@@ -39,19 +43,30 @@ afterEach(() => {
 });
 
 describe('delete-appointment query-appointment-mw unit tests', () => {
-  it('should call next when profile is found', async () => {
+  it('should call next when appointment is found', async () => {
     repoStub.findByAppointmentId.resolves(appointment);
     await mw(req, res, next);
-    expect(repoStub.findByAppointmentId.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.findByAppointmentId.calledWith('TEST-APPT')).to.be.true;
     expect(sendStub.called).to.be.false;
     expect(res.status.called).to.be.false;
     expect(next.called).to.be.true;
   });
 
-  it('should respond with NOT_FOUND when no profile is found', async () => {
+  it('should respond with NOT_FOUND when no appointment is found', async () => {
     repoStub.findByAppointmentId.resolves(undefined);
     await mw(req, res, next);
-    expect(repoStub.findByAppointmentId.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.findByAppointmentId.calledWith('TEST-APPT')).to.be.true;
+    expect(sendStub.calledWith(404));
+    expect(next.called).to.be.false;
+  });
+
+  it('should respond with NOT_FOUND when appointment clientId is not the current user', async () => {
+    repoStub.findByAppointmentId.resolves({
+      clentId: 'SOMEONE-ELSe'
+    });
+
+    await mw(req, res, next);
+    expect(repoStub.findByAppointmentId.calledWith('TEST-APPT')).to.be.true;
     expect(sendStub.calledWith(404));
     expect(next.called).to.be.false;
   });
@@ -60,7 +75,7 @@ describe('delete-appointment query-appointment-mw unit tests', () => {
     repoStub.findByAppointmentId.rejects(new Error('FORCED-ERROR'));
     await mw(req, res, next);
 
-    expect(repoStub.findByAppointmentId.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.findByAppointmentId.calledWith('TEST-APPT')).to.be.true;
     expect(sendStub.called).to.be.false;
     expect(res.status.called).to.be.false;
     expect(next.called).to.be.true;

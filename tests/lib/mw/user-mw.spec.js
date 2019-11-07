@@ -20,8 +20,7 @@ describe('user-mw unit-tests', () => {
 
     expect(req.apiUserInfo.issuer).to.equal('TOKEN_ISSUER');
     expect(req.apiUserInfo.id).to.equal('USER_ID');
-    expect(req.apiUserInfo.date).to.equal('DATE');
-    expect(req.apiUserInfo.time).to.equal('TIME');
+    //expect(req.apiUserInfo.time).to.equal('TIME');
     
   });
 

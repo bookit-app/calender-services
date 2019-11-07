@@ -1,6 +1,6 @@
 'use strict';
 
-const { isEmpty, omit } = require('lodash');
+const { isEmpty } = require('lodash');
 
 const APPOINTMENT = 'appointments';
 
@@ -9,31 +9,27 @@ class AppointmentRepository {
     this.firestore = firestore;
   }
 
-  createAppointment(appointment) {
-    const data = omit(appointment, ['uid', 'aid']);
-
-    data.time = isEmpty(data.time) ? 'O' : data.time;
-    data.date = isEmpty(data.date) ? '' : data.date;
-    data.uid = isEmpty(data.uid) ? '': data.uid;
-    data.aid = isEmpty(data.aid) ? '': data.aid;
-
-    return data;
-  }
-  
+  /**
+   * Create the appointment document
+   *
+   * @param {*} appointment
+   * @returns {String}
+   * @memberof AppointmentRepository
+   */
   async create(appointment) {
-    await this.firestore
-      .collection(APPOINTMENT)
-      .doc(appointment.aid)
-      .create(this.createAppointment(appointment));
+    const document = await this.firestore.collection(APPOINTMENT).add({
+      ...appointment,
+      state: 'BOOKED'
+    });
 
-    return appointment.aid;
+    return document.id;
   }
 
   /**
    * Trigger the delete into Firestore for the document at
    * path profile/{profileId}
    *
-   * @param {String} appoinmentId
+   * @param {String} appointmentId
    * @returns
    * @memberof appointmentRepository
    */
@@ -46,100 +42,43 @@ class AppointmentRepository {
     return;
   }
 
-    /**
-   * Query for a appointment based on the AID code
-   *
-   * @param {String} aid
-   * @returns {appointment | {}}
-   * @memberof appointmentRepository
-   */
-  async findAppointmentByAid(aid) {
-    const snapshot = await this.firestore
-      .collection(APPOINTMENT)
-      .where('aid', '==', aid)
-      .get();
-
-    if (snapshot && !snapshot.empty) {
-      // As we enforce a single EIN return the first
-      return snapshot.docs[0].data();
-    }
-
-    return {};
-  }
-
-
-
-  async findByAppointmentId(appointmentId, options) {
+  async findByAppointmentId(appointmentId) {
     const documentReference = await this.firestore
       .collection(APPOINTMENT)
       .doc(appointmentId)
       .get();
 
-    if (!isEmpty(documentReference) && documentReference.exists) {
-      const appointment = documentReference.data();
-
-      if (!isEmpty(options)) {
-        const data = {};
-        data[options.select] = appointment[options.select];
-        return data;
-      }
-
-      return appointment;
+    if (isEmpty(documentReference) || !documentReference.exists) {
+      return {};
     }
 
-    return undefined;
+    const document = documentReference.data();
+    document.appointmentId = documentReference.id;
+    return document;
   }
 
-  async update(appointment) {
-    await this.firestore
+  update(appointmentId, appointment) {
+    const documentReference = this.firestore
       .collection(APPOINTMENT)
-      .doc(appointment.aid)
-      .set(omit(appointment, ['aid']), { merge: true });
+      .doc(appointmentId);
 
-    return;
+    return this.firestore.runTransaction(async t => {
+      const document = await t.get(documentReference);
+
+      // The appointment has been deleted so nothing to update at this point
+      if (isEmpty(document) || !document.exists) {
+        const err = new Error();
+        err.code = 'APPOINTMENT_NOT_EXISTING';
+        return Promise.reject(err);
+      }
+
+      await t.set(documentReference, appointment, { merge: true });
+    });
   }
-}
-
-
-
-/**
- * Processes the options for query and builds a firestore
- * query request which can be used
- *
- * @param {*} collection
- * @param {*} options
- * @returns {Query}
- */
-function buildSearchRequest(collection, options) {
-  let query = collection;
-
-  if (!options) return query;
-
-  if (options.businessName) {
-    query = query.where('businessName', '==', options.businessName);
-  }
-
-  if (options.time) {
-    query = query.where('time', '==', time);
-  }
-  if (options.date) {
-    query = query.where('date', '==', date);
-  }
-
-  if (options.aid) {
-    query = query.where('aid', '==', aid);
-  }
-
-  if (options.uid) {
-    query = query.where('uid', 'array-contains', uid);
-  }
-
-  return query;
 }
 
 module.exports = AppointmentRepository;
 module.exports.COLLECTION_NAME = APPOINTMENT;
-//module.exports.supportedSearchParams = supportedSearchParams;
 module.exports.appointmentRepositoryInstance = new AppointmentRepository(
   require('./firestore')
 );

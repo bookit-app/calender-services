@@ -1,6 +1,6 @@
 {
-  "name": "profile-update-appointment",
-  "description": "Profile Update Appointment",
+  "name": "update-appointment",
+  "description": "Update Appointment",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

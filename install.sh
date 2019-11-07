@@ -1,0 +1,11 @@
+npm install
+cd ./src/services/create-appointment
+npm install
+cd ../delete-appointment
+npm install
+cd ../query-appointment
+npm install
+cd ../update-appointment
+npm install
+cd ../configuration-service
+npm install

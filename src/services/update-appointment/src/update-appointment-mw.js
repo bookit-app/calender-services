@@ -7,10 +7,8 @@ const { clone } = require('lodash');
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
     const appointment = req.body;
-    appointment.uid = req.apiUserInfo.id;
-    await appointmentRepository.update(appointment);
+    await appointmentRepository.update(req.params.appointmentId, appointment);
 
-    console.log(`Appointment for UID ${appointment.uid} successfully updated`);
     next();
   } catch (err) {
     const error = clone(errors.updateFailed);

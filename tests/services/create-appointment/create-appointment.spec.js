@@ -15,10 +15,10 @@ const req = {
     id: 'TEST-USER'
   },
   body: {
-    aid: 'TEST-AID',
-        uid: 'TEST-UID',
-        time: '12:30',
-        date: '12-10-2019'
+    staffMemberId: 'TEST-STAFF-ID',
+    providerId: 'TEST-PROVIDER-Id',
+    time: '12:30',
+    date: '12-10-2019'
   }
 };
 
@@ -30,7 +30,6 @@ const next = stub();
 
 describe('create-appointment: unit tests', () => {
   afterEach(() => {
-    req.body.uid = undefined;
     next.resetHistory();
     res.location.resetHistory();
     repoStub.create.resetHistory();
@@ -42,13 +41,14 @@ describe('create-appointment: unit tests', () => {
       expect(repoStub.create.called).to.be.true;
       expect(
         repoStub.create.calledWith({
-          aid: 'TEST-AID',
-          uid: 'TEST-UID',
+          clientId: 'TEST-USER',
+          staffMemberId: 'TEST-STAFF-ID',
+          providerId: 'TEST-PROVIDER-Id',
           time: '12:30',
           date: '12-10-2019'
         })
       ).to.be.true;
-      expect(res.location.calledWith('/profile/DOC-ID')).to.be.true;
+      expect(res.location.calledWith('/appointments/DOC-ID')).to.be.true;
     });
   });
 
@@ -59,9 +59,10 @@ describe('create-appointment: unit tests', () => {
       expect(repoStub.create.called).to.be.true;
       expect(
         repoStub.create.calledWith({
-         aid: 'TEST-AID',
-          uid: 'TEST-UID',
-         time: '12:30',
+          clientId: 'TEST-USER',
+          staffMemberId: 'TEST-STAFF-ID',
+          providerId: 'TEST-PROVIDER-Id',
+          time: '12:30',
           date: '12-10-2019'
         })
       ).to.be.true;

@@ -13,6 +13,9 @@ const mw = require('../../../src/services/delete-appointment/src/delete-appointm
 const req = {
   apiUserInfo: {
     id: 'TEST-USER'
+  },
+  params: {
+    appointmentId: 'TEST-APPT'
   }
 };
 
@@ -25,7 +28,7 @@ describe('delete-appointment unit tests', () => {
     repoStub.delete.resolves();
     const next = stub();
     await mw(req, res, next);
-    expect(repoStub.delete.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.delete.calledWith('TEST-APPT')).to.be.true;
     expect(next.called).to.be.true;
     expect(next.calledWith()).to.be.true;
   });
@@ -34,7 +37,7 @@ describe('delete-appointment unit tests', () => {
     repoStub.delete.rejects(new Error('FORCED-ERROR'));
     const next = stub();
     await mw(req, res, next);
-    expect(repoStub.delete.calledWith('TEST-USER')).to.be.true;
+    expect(repoStub.delete.calledWith('TEST-APPT')).to.be.true;
     expect(next.called).to.be.true;
     const { errorCode, statusCode } = next.args[0][0];
     expect(errorCode).to.equal(errors.updateFailed.errorCode);

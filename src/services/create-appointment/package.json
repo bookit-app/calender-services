@@ -1,6 +1,6 @@
 {
-  "name": "profile-create-appointment",
-  "description": "Profile Create Appointment",
+  "name": "create-appointment",
+  "description": "Create Appointment",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

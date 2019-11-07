@@ -2,9 +2,29 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const {
-  appointmentRepositoryInstance
-} = require('../../../lib/repository/profile-repository');
+
+// These will be lazily loaded when needed.
+// Per Cloud Run best practice we should lazily load
+// references https://cloud.google.com/run/docs/tips
+let repo, deleteMW, queryMW;
+
+function deleteHandlerMW(req, res, next) {
+  repo =
+    repo ||
+    require('../../../lib/repository/appointment-repository')
+      .appointmentRepositoryInstance;
+  deleteMW = deleteMW || require('./delete-appointment-mw')(repo);
+  return deleteMW(req, res, next);
+}
+
+function queryHandlerMW(req, res, next) {
+  repo =
+    repo ||
+    require('../../../lib/repository/appointment-repository')
+      .appointmentRepositoryInstance;
+  queryMW = queryMW || require('./query-appointment-mw')(repo);
+  return queryMW(req, res, next);
+}
 
 // Setup Express Server
 const app = express();
@@ -12,11 +32,11 @@ app.use(bodyParser.json());
 
 // Generate Route with necessary middleware
 app.delete(
-  '/appointment/:appointmentId',
+  '/appointments/:appointmentId',
   require('../../../lib/mw/user-mw'),
   require('../../../lib/mw/trace-id-mw'),
-  require('./query-appointment-mw')(appointmentRepositoryInstance),
-  require('./delete-appointment-mw')(appointmentRepositoryInstance),
+  queryHandlerMW,
+  deleteHandlerMW,
   require('./success-mw')
 );
 

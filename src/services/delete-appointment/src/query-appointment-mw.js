@@ -7,8 +7,13 @@ const { clone, isEmpty } = require('lodash');
 
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
-    const appointment = await appointmentRepository.findByAppointmentId(req.apiUserInfo.id);
-    isEmpty(appointment) ? res.sendStatus(NOT_FOUND) : next();
+    const appointment = await appointmentRepository.findByAppointmentId(
+      req.params.appointmentId
+    );
+
+    isEmpty(appointment) || appointment.clientId !== req.apiUserInfo.id
+      ? res.sendStatus(NOT_FOUND)
+      : next();
   } catch (err) {
     const error = clone(errors.systemError);
     error.message = err.message;

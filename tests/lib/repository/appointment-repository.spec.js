@@ -10,30 +10,23 @@ const {
 } = require('@google-cloud/firestore');
 
 const appointment = {
- 
-  date: '2018-11-13',
-  email: 'test@test.com',
-  firstName: 'test-first-name',
-  gender: 'M',
-  isProvider: true,
-  isSocial: true,
-  lastName: 'test-last-name',
-  phoneNumber: '123-123-1234',
-  aid: 'TEST-AID',
-  uid: 'TEST-UID',
-  time: '12:30'
-  
+  staffMemberId: 'TEST-STAFF-ID',
+  providerId: 'TEST-PROVIDER-Id',
+  clientId: 'TEST-CLIENT-ID',
+  time: '12:30',
+  date: '12-10-2019'
 };
 
 describe('appointment-repository: unit tests', () => {
-  let repo;
+  let repo, firestore;
   let collectionReference, documentReference;
 
   before(() => {
-    const firestore = createStubInstance(Firestore);
+    firestore = createStubInstance(Firestore);
     collectionReference = createStubInstance(CollectionReference);
     documentReference = createStubInstance(DocumentReference);
     collectionReference.doc.returns(documentReference);
+    documentReference.collection.returns(collectionReference);
     firestore.collection.returns(collectionReference);
 
     repo = new AppointmentRepository(firestore);
@@ -45,33 +38,27 @@ describe('appointment-repository: unit tests', () => {
     documentReference.delete.resetHistory();
     documentReference.create.resetHistory();
     collectionReference.doc.resetHistory();
+    collectionReference.where.resetHistory();
+    documentReference.collection.resetHistory();
+    documentReference.create.resetHistory();
+    collectionReference.add.resetHistory();
+    firestore.runTransaction.resetHistory();
+    documentReference.delete.resetHistory();
   });
 
   context('create', () => {
     it('create should resolve', () => {
-      documentReference.create.resolves();
-      return expect(repo.create(appointment)).to.be.fulfilled;
-    });
-
-    it('should enforce default values on create', () => {
-      const testAppointment = {
-        aid: 'TEST-AID',
-        uid: 'TEST-UID',
-        time: '12:30',
-        date: '12-10-2019'
-      };
-
-      documentReference.create.resolves();
-      return expect(repo.create(testAppointment)).to.be.fulfilled.then(
-        () =>
+      collectionReference.add.resolves({ id: 'TEST' });
+      return expect(repo.create(appointment)).to.be.fulfilled.then(
+        documentId => {
           expect(
-            documentReference.create.calledWith({
-              aid: 'TEST-AID',
-              uid: 'TEST-UID',
-              time: '12:30',
-              date: '12-10-2019'
+            collectionReference.add.calledWith({
+              ...appointment,
+              state: 'BOOKED'
             })
-          ).to.be.true
+          ).to.be.true;
+          expect(documentId).to.equal('TEST');
+        }
       );
     });
   });
@@ -86,7 +73,7 @@ describe('appointment-repository: unit tests', () => {
   });
 
   context('query appointment', () => {
-    it('should return profile when found', () => {
+    it('should return appointment when found', () => {
       documentReference.get.resolves({
         data: () => appointment,
         exists: true
@@ -99,39 +86,7 @@ describe('appointment-repository: unit tests', () => {
       );
     });
 
-    it('should return profile the request sub components when found', () => {
-      documentReference.get.resolves({
-        data: () => appointment,
-        exists: true
-      });
-
-      expect(
-        repo.findByAppointmentId(appointment.aid, { select: 'date' })
-      ).to.be.fulfilled.then(response => {
-        expect(response).to.deep.equal({
-          aid: 'TEST-AID',
-        uid: 'TEST-UID',
-        time: '12:30',
-        date: '12-10-2019'
-          }
-        );
-      });
-    });
-
-    it('should return nothing if the request sub components are not found', () => {
-      documentReference.get.resolves({
-        data: () => appointment,
-        exists: true
-      });
-
-      expect(
-        repo.findByAppointmentId(appointment.aid, { select: 'test' })
-      ).to.be.fulfilled.then(response => {
-        expect(response).to.deep.equal({});
-      });
-    });
-
-    it('should return undefined when no profile is found', () => {
+    it('should return {} when no appointment is found', () => {
       documentReference.get.resolves({
         data: () => {},
         exists: false
@@ -139,26 +94,80 @@ describe('appointment-repository: unit tests', () => {
 
       expect(repo.findByAppointmentId(appointment.aid)).to.be.fulfilled.then(
         response => {
-          expect(response).to.be.undefined;
+          expect(response).to.deep.equal({});
         }
       );
     });
   });
-
   context('update', () => {
-    it('should resolve', () => {
-      documentReference.set.resolves();
-      expect(repo.update(appointment)).to.be.fulfilled.then(() => {
-        expect(collectionReference.doc.calledWith(appointment.aid)).to.be.true;
-        expect(
-          documentReference.set.calledWith({
-            aid: 'TEST-AID',
-            uid: 'TEST-UID',
-           time: '12:30',
-            date: '12-10-2019'
-          })
-        ).to.be.true;
+    it('should resolve if appointment exists', () => {
+      firestore.runTransaction.callsFake(
+        async func => await func(documentReference)
+      );
+      documentReference.get.resolves({
+        data: () => appointment,
+        exists: true
       });
+
+      documentReference.set.resolves();
+      expect(repo.update('TEST', appointment)).to.be.fulfilled.then(() => {
+        expect(collectionReference.doc.calledWith('TEST')).to.be.true;
+        expect(documentReference.set.called).to.be.true;
+      });
+    });
+
+    it('should reject if provider does not exists', () => {
+      firestore.runTransaction.callsFake(
+        async func => await func(documentReference)
+      );
+      documentReference.get.resolves({
+        exists: false
+      });
+
+      documentReference.set.resolves();
+      expect(repo.update('TEST', appointment)).to.be.rejected.then(err => {
+        expect(collectionReference.doc.calledWith('TEST')).to.be.true;
+        expect(documentReference.set.called).to.be.false;
+        expect(err.code).to.equal('APPOINTMENT_NOT_EXISTING');
+      });
+    });
+  });
+
+  context('findByAppointmentId', () => {
+    it('should return provider when found', () => {
+      documentReference.get.resolves({
+        id: 'TEST-ID',
+        data: () => appointment,
+        exists: true
+      });
+
+      expect(repo.findByAppointmentId('APPT-ID')).to.be.fulfilled.then(
+        response => {
+          expect(response).to.deep.equal(appointment);
+        }
+      );
+    });
+
+    it('should return empty object when nothing is found', () => {
+      documentReference.get.resolves({
+        exists: false
+      });
+
+      expect(repo.findByAppointmentId('APPT-ID')).to.be.fulfilled.then(
+        response => {
+          expect(response).to.deep.equal({});
+        }
+      );
+    });
+
+    it('should return empty object when doc reference is undefined', () => {
+      documentReference.get.resolves(undefined);
+
+      expect(repo.findByAppointmentId('APPT-ID')).to.be.fulfilled.then(
+        response => {
+          expect(response).to.deep.equal({});
+        }
+      );
     });
   });
 });

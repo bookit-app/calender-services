@@ -4,7 +4,8 @@ module.exports.schema = {
   $async: true,
   $id: 'http://bookit.com/schemas/appointment-update-schema.json',
   type: 'object',
-  required: ['date', 'time', 'aid', 'uid', 'businessName'],
+  required: [],
+  additionalProperties: false,
   properties: {
     date: {
       type: 'string',
@@ -14,19 +15,20 @@ module.exports.schema = {
       type: 'string',
       format: 'time'
     },
-    aid: {
-      type: 'string',
-      pattern: '^[0-9]{6}$'
+    note: {
+      type: 'string'
     },
-    uid: {
-      type: 'string',
-      pattern: '^[0-9]{6}$'
-    },
-  
-    businessName: {
-      type: 'string',
-      minLength: 1
-    },
-    
+    status: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          enum: ['DELAYED', 'ON-TIME', 'READY']
+        },
+        comment: {
+          type: 'string'
+        }
+      }
+    }
   }
 };
