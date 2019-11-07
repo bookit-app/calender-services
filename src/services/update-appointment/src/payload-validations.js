@@ -15,6 +15,10 @@ module.exports.schema = {
       type: 'string',
       format: 'time'
     },
+    state: {
+      type: 'string',
+      enum: ['CANCELLED', 'COMPLETED']
+    },
     note: {
       type: 'string'
     },
