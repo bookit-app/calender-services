@@ -21,7 +21,8 @@
     "reporter": [
       "html",
       "text",
-      "text-summary"
+      "text-summary",
+      "lcov"
     ],
     "instrument": true
   },
