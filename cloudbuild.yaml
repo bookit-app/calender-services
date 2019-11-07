@@ -4,6 +4,19 @@ steps:
     entrypoint: npm
     args: ["install"]
 
+  # Run Lint
+  - name: "node:10.16.3"
+    id: lint
+    entrypoint: npm
+    args: ["run", "lint"]
+
+  # Run Unit Tests
+  - name: "node:10.16.3"
+    id: test-unit
+    entrypoint: npm
+    args: ["run", "test"]
+
+  ########## create-appointment: dependency installation ##########
   - name: "node:10.16.3"
     id: create-appointment-install
     waitFor:
@@ -12,44 +25,9 @@ steps:
     args: ["install"]
     dir: src/services/create-appointment
 
-  - name: "node:10.16.3"
-    id: delete-appointment-install
-    waitFor:
-      - root-install
-    entrypoint: npm
-    args: ["install"]
-    dir: src/services/delete-appointment
-
-  - name: "node:10.16.3"
-    id: query-appointment-install
-    waitFor:
-      - root-install
-    entrypoint: npm
-    args: ["install"]
-    dir: src/services/query-appointment
-
-  - name: "node:10.16.3"
-    id: update-appointment-install
-    waitFor:
-      - root-install
-    entrypoint: npm
-    args: ["install"]
-    dir: src/services/update-appointment
-
-  # Validate build
-  - name: "node:10.16.3"
-    id: lint
-    entrypoint: npm
-    args: ["run", "lint"]
-
-  - name: "node:10.16.3"
-    id: test-unit
-    entrypoint: npm
-    args: ["run", "test"]
-
-  # Build and push docker image: Create appointment
+  # create-appointment: Build docker image
   - name: "gcr.io/cloud-builders/docker"
-    id: create-appointment:0.0.1
+    id: build-create-appointment
     waitFor:
       - test-unit
     args:
@@ -60,70 +38,14 @@ steps:
       - gcr.io/sweng-581-capstone/create-appointment:0.0.1
       - .
 
+  # create-appointment: Push docker image
   - name: "gcr.io/cloud-builders/docker"
     id: push-create-appointment
     waitFor:
-      - create-appointment:0.0.1
+      - build-create-appointment
     args: ["push", "gcr.io/sweng-581-capstone/create-appointment:0.0.1"]
 
-  # Build and push docker image: Delete Profile
-  - name: "gcr.io/cloud-builders/docker"
-    id: delete-appointment:0.0.1
-    waitFor:
-      - test-unit
-    args:
-      - build
-      - --build-arg
-      - service=delete-appointment
-      - -t
-      - gcr.io/sweng-581-capstone/delete-appointment:0.0.1
-      - .
-
-  - name: "gcr.io/cloud-builders/docker"
-    id: push-delete-appointment
-    waitFor:
-      - delete-appointment:0.0.1
-    args: ["push", "gcr.io/sweng-581-capstone/delete-appointment:0.0.1"]
-
-  # Build and push docker image: Query Profile
-  - name: "gcr.io/cloud-builders/docker"
-    id: query-appointment:0.0.1
-    waitFor:
-      - test-unit
-    args:
-      - build
-      - --build-arg
-      - service=query-appointment
-      - -t
-      - gcr.io/sweng-581-capstone/query-appointment:0.0.1
-      - .
-
-  - name: "gcr.io/cloud-builders/docker"
-    id: push-query-appointment
-    waitFor:
-      - query-appointment:0.0.1
-    args: ["push", "gcr.io/sweng-581-capstone/query-appointment:0.0.1"]
-
-  # Build and push docker image: Update Profile
-  - name: "gcr.io/cloud-builders/docker"
-    id: update-appointment:0.0.1
-    waitFor:
-      - test-unit
-    args:
-      - build
-      - --build-arg
-      - service=update-appointment
-      - -t
-      - gcr.io/sweng-581-capstone/update-appointment:0.0.1
-      - .
-
-  - name: "gcr.io/cloud-builders/docker"
-    id: push-update-appointment
-    waitFor:
-      - update-profile:0.0.1
-    args: ["push", "gcr.io/sweng-581-capstone/update-appointment:0.0.1"]
-
-  # Deploy to cloud run
+  # create-appointment: Deploy to cloud run
   - name: "gcr.io/cloud-builders/gcloud"
     waitFor:
       - push-create-appointment
@@ -135,7 +57,38 @@ steps:
       - --image=gcr.io/sweng-581-capstone/create-appointment:0.0.1
       - --region=us-central1
       - --platform=managed
+  ########## create-appointment: dependency installation ##########
 
+  ########## delete-appointment: dependency installation ##########
+  - name: "node:10.16.3"
+    id: delete-appointment-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/delete-appointment
+
+  # delete-appointment: Build docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: build-delete-appointment
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=delete-appointment
+      - -t
+      - gcr.io/sweng-581-capstone/delete-appointment:0.0.1
+      - .
+
+  # delete-appointment: Push docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-delete-appointment
+    waitFor:
+      - build-delete-appointment
+    args: ["push", "gcr.io/sweng-581-capstone/delete-appointment:0.0.1"]
+
+  # delete-appointment: Deploy to cloud run
   - name: "gcr.io/cloud-builders/gcloud"
     waitFor:
       - push-delete-appointment
@@ -147,7 +100,38 @@ steps:
       - --image=gcr.io/sweng-581-capstone/delete-appointment:0.0.1
       - --region=us-central1
       - --platform=managed
+  ########## delete-appointment: dependency installation ##########
 
+  ########## query-appointment: dependency installation ##########
+  - name: "node:10.16.3"
+    id: query-appointment-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/query-appointment
+
+  # query-appointment: Build docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: build-query-appointment
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=query-appointment
+      - -t
+      - gcr.io/sweng-581-capstone/query-appointment:0.0.1
+      - .
+
+  # query-appointment: Push docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-query-appointment
+    waitFor:
+      - build-query-appointment
+    args: ["push", "gcr.io/sweng-581-capstone/query-appointment:0.0.1"]
+
+  # query-appointment: Deploy to cloud run
   - name: "gcr.io/cloud-builders/gcloud"
     waitFor:
       - push-query-appointment
@@ -159,7 +143,38 @@ steps:
       - --image=gcr.io/sweng-581-capstone/query-appointment:0.0.1
       - --region=us-central1
       - --platform=managed
+  ########## query-appointment: dependency installation ##########
 
+  ########## update-appointment: dependency installation ##########
+  - name: "node:10.16.3"
+    id: update-appointment-install
+    waitFor:
+      - root-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/update-appointment
+
+  # update-appointment: Build docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: build-update-appointment
+    waitFor:
+      - test-unit
+    args:
+      - build
+      - --build-arg
+      - service=update-appointment
+      - -t
+      - gcr.io/sweng-581-capstone/update-appointment:0.0.1
+      - .
+
+  # update-appointment: Push docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-update-appointment
+    waitFor:
+      - build-update-appointment
+    args: ["push", "gcr.io/sweng-581-capstone/update-appointment:0.0.1"]
+
+  # update-appointment: Deploy to cloud run
   - name: "gcr.io/cloud-builders/gcloud"
     waitFor:
       - push-update-appointment
@@ -171,6 +186,7 @@ steps:
       - --image=gcr.io/sweng-581-capstone/update-appointment:0.0.1
       - --region=us-central1
       - --platform=managed
+  ########## update-appointment: dependency installation ##########
 
 images:
   - "gcr.io/sweng-581-capstone/create-appointment:0.0.1"

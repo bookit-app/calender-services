@@ -6,8 +6,9 @@ const { clone } = require('lodash');
 
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
-    await appointmentRepository.delete(req.apiUserInfo.id);
-    console.log(`Appointment ${req.apiUserInfo.id} successfully cancelled`);
+    await appointmentRepository.delete(req.params.appointmentId);
+
+    console.log(`Appointment ${req.params.appointmentId} successfully deleted`);
     next();
   } catch (err) {
     const error = clone(errors.updateFailed);

@@ -6,7 +6,7 @@ const { clone } = require('../../../../node_modules/lodash');
 
 /**
  * Express Middleware to trigger the creation of the
- * service provider. It assumes the data is pre-validated
+ * appointment. It assumes the data is pre-validated
  * and the request object is containing the necessary user details
  *
  * @param {Express.Request} req
@@ -18,10 +18,13 @@ const { clone } = require('../../../../node_modules/lodash');
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
     const appointment = req.body;
-    appointment.aid = req.apiUserInfo.id;
+    appointment.clientId = req.apiUserInfo.id;
     const docId = await appointmentRepository.create(appointment);
 
-    console.log(`Appointment for UID ${appointment.aid} successfully created`);
+    console.log(
+      `Appointment for client ${appointment.clientId} successfully created`
+    );
+
     res.location(`/appointments/${docId}`);
     next();
   } catch (err) {

@@ -2,17 +2,14 @@
 
 const ServiceError = require('../../../lib/util/service-error');
 const { errors } = require('../../../lib/constants');
-const { OK, NOT_FOUND } = require('../../../lib/constants').statusCodes;
-const { clone, isEmpty } = require('../../../../node_modules/lodash');
+const { clone } = require('../../../../node_modules/lodash');
 
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
-    const appointment = await appointmentRepository.findByAppointmentId(
-      req.apiUserInfo.id,
-      req.appointmentQueryOptions
+    res.appointment = await appointmentRepository.findByAppointmentId(
+      req.params.appointmentId
     );
-
-    isEmpty(appointment) ? res.sendStatus(NOT_FOUND) : res.status(OK).send(appointment);
+    next();
   } catch (err) {
     const error = clone(errors.systemError);
     error.message = err.message;

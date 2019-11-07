@@ -14,9 +14,10 @@ const req = {
   apiUserInfo: {
     id: 'TEST-USER'
   },
+  params: {
+    appointmentId: 'TEST-APPT'
+  },
   body: {
-    aid: 'TEST-AID',
-    uid: 'TEST-UID',
     time: '12:30',
     date: '12-10-2019'
   }
@@ -28,7 +29,6 @@ const next = stub();
 
 describe('update-appointment: unit tests', () => {
   afterEach(() => {
-    req.body.uid = undefined;
     next.resetHistory();
     repoStub.update.resetHistory();
   });
@@ -38,9 +38,7 @@ describe('update-appointment: unit tests', () => {
     expect(mw(req, res, next)).to.be.fulfilled.then(() => {
       expect(repoStub.update.called).to.be.true;
       expect(
-        repoStub.update.calledWith({
-          aid: 'TEST-AID',
-          uid: 'TEST-UID',
+        repoStub.update.calledWith('TEST-APPT', {
           time: '12:30',
           date: '12-10-2019'
         })
@@ -55,11 +53,9 @@ describe('update-appointment: unit tests', () => {
     expect(mw(req, res, next)).to.be.fulfilled.then(() => {
       expect(repoStub.update.called).to.be.true;
       expect(
-        repoStub.update.calledWith({
-          aid: 'TEST-AID',
-         uid: 'TEST-UID',
-        time: '12:30',
-        date: '12-10-2019'
+        repoStub.update.calledWith('TEST-APPT', {
+          time: '12:30',
+          date: '12-10-2019'
         })
       ).to.be.true;
       expect(next.called).to.be.true;

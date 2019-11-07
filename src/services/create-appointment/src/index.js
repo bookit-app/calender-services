@@ -2,10 +2,6 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const {
-  applicationRepositoryInstance
-} = require('../../../lib/repository/appointment-repository');
-const { schema } = require('./payload-validations');
 
 // Setup Express Server
 const app = express();
@@ -29,13 +25,6 @@ function validateMW(req, res, next) {
     require('../../../lib/repository/appointment-repository')
       .appointmentRepositoryInstance;
 
-  if (!validationMW) {
-    require('./payload-validations').enableDynamicValidationChecks(
-      require('../../../lib/util/validator'),
-      repo
-    );
-  }
-
   schema = schema || require('./payload-validations').schema;
   validationMW =
     validationMW || require('../../../lib/mw/payload-validation-mw')(schema);
@@ -48,8 +37,8 @@ app.post(
   '/appointments',
   require('../../../lib/mw/user-mw'),
   require('../../../lib/mw/trace-id-mw'),
-  require('../../../lib/mw/payload-validation-mw')(schema),
-  require('./create-appointments-mw')(applicationRepositoryInstance),
+  validateMW,
+  createHandlerMW,
   require('./success-mw')
 );
 

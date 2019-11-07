@@ -30,4 +30,27 @@ describe('error-handling-mw unit tests', () => {
       })
     ).to.be.true;
   });
+
+  it('should respond with the error information and 500 error for non ServiceErrors', () => {
+    const json = stub();
+    const res = {
+      status: stub().returns({ json: json })
+    };
+
+    const error = {
+      message: 'TESTmessage'
+    };
+
+    errorHandlingMW(new ServiceError(error), {}, res, undefined);
+
+    expect(res.status.called).to.be.true;
+    expect(res.status.calledWith(500)).to.be.true;
+    expect(json.called).to.be.true;
+    expect(
+      json.calledWith({
+        errorCode: 'UNKNOWN',
+        message: error.message
+      })
+    ).to.be.true;
+  });
 });

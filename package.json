@@ -1,6 +1,6 @@
 {
-  "name": "caleender-services",
-  "description": "Cloud Function: Bookit Profile Creation Function",
+  "name": "calendar-services",
+  "description": "Bookit app Calendar services",
   "scripts": {
     "lint": "eslint src",
     "test": "NODE_ENV=test nyc mocha tests --recursive --exit"
@@ -25,7 +25,6 @@
     ],
     "instrument": true
   },
-  
   "dependencies": {
     "@google-cloud/firestore": "^2.3.0",
     "@google-cloud/logging-winston": "^2.1.0",

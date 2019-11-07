@@ -1,6 +1,6 @@
 {
-  "name": "profile-query-appointment",
-  "description": "Profile Query Appointment",
+  "name": "query-appointment",
+  "description": "Query Appointment",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"

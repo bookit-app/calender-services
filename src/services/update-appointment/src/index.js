@@ -2,10 +2,31 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const {
-  appointemntRepositoryInstance
-} = require('../../../lib/repository/appointment-repository');
-const { schema } = require('./payload-validations');
+
+let repo, updateAppointmentMW, validateMW, schema;
+
+function updateHandlerMW(req, res, next) {
+  repo =
+    repo ||
+    require('../../../lib/repository/appointment-repository')
+      .appointmentRepositoryInstance;
+  updateAppointmentMW =
+    updateAppointmentMW || require('./update-appointment-mw')(repo);
+  return updateAppointmentMW(req, res, next);
+}
+
+function validateHandlerMW(req, res, next) {
+  repo =
+    repo ||
+    require('../../../lib/repository/appointment-repository')
+      .appointmentRepositoryInstance;
+
+  schema = schema || require('./payload-validations').schema;
+  validateMW =
+    validateMW || require('../../../lib/mw/payload-validation-mw')(schema);
+
+  return validateMW(req, res, next);
+}
 
 // Setup Express Server
 const app = express();
@@ -13,11 +34,11 @@ app.use(bodyParser.json());
 
 // Generate Route with necessary middleware
 app.patch(
-  '/appointment',
+  '/appointments/:appointmentId',
   require('../../../lib/mw/user-mw'),
   require('../../../lib/mw/trace-id-mw'),
-  require('../../../lib/mw/payload-validation-mw')(schema),
-  require('./update-appointment-mw')(appointmentRepositoryInstance),
+  validateHandlerMW,
+  updateHandlerMW,
   require('./success-mw')
 );
 
