@@ -20,6 +20,9 @@ module.exports.schema = {
     time: {
       type: 'string',
       format: 'time'
+    },
+    note: {
+      type: 'string'
     }
   }
 };
