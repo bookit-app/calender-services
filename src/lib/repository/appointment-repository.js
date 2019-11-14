@@ -1,8 +1,10 @@
-'use strict';
+"use strict";
 
-const { isEmpty } = require('lodash');
+const { isEmpty } = require("lodash");
 
-const APPOINTMENT = 'appointments';
+const APPOINTMENT = "appointments";
+
+const supportedSearchParams = [];
 
 class AppointmentRepository {
   constructor(firestore) {
@@ -19,7 +21,7 @@ class AppointmentRepository {
   async create(appointment) {
     const document = await this.firestore.collection(APPOINTMENT).add({
       ...appointment,
-      state: 'BOOKED'
+      state: "BOOKED"
     });
 
     return document.id;
@@ -68,17 +70,66 @@ class AppointmentRepository {
       // The appointment has been deleted so nothing to update at this point
       if (isEmpty(document) || !document.exists) {
         const err = new Error();
-        err.code = 'APPOINTMENT_NOT_EXISTING';
+        err.code = "APPOINTMENT_NOT_EXISTING";
         return Promise.reject(err);
       }
 
       await t.set(documentReference, appointment, { merge: true });
     });
   }
+
+  /**
+   * Search for Appointments based on the input options
+   * available options are defined in supportedSearchParams
+   *
+   * @param {*} options
+   * @returns
+   * @memberof ServiceProviderRepository
+   */
+  async search(options) {
+    const collection = this.firestore.collection(APPOINTMENT);
+    const query = buildSearchRequest(collection, options);
+
+    const querySnapshot = await query.get();
+
+    if (querySnapshot && !querySnapshot.empty) {
+      return querySnapshot.docs.reduce((results, docSnapshot) => {
+        const item = processSearchResultItem(docSnapshot);
+        if (!isEmpty(item)) {
+          results.push(item);
+        }
+        return results;
+      }, []);
+    }
+
+    return [];
+  }
+}
+
+function processSearchResultItem(documentSnapshot) {
+  const data = documentSnapshot.data();
+  return data;
+}
+
+/**
+ * Processes the options for query and builds a firestore
+ * query request which can be used
+ *
+ * @param {*} collection
+ * @param {*} options
+ * @returns {Query}
+ */
+function buildSearchRequest(collection, options) {
+  let query = collection;
+
+  if (!options) return query;
+
+  return query;
 }
 
 module.exports = AppointmentRepository;
 module.exports.COLLECTION_NAME = APPOINTMENT;
+module.exports.supportedSearchParams = supportedSearchParams;
 module.exports.appointmentRepositoryInstance = new AppointmentRepository(
-  require('./firestore')
+  require("./firestore")
 );
