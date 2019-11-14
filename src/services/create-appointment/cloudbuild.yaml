@@ -1,0 +1,43 @@
+steps:
+  - name: "node:10.16.3"
+    id: install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/create-appointment
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: build
+    waitFor:
+      - install
+    args:
+      - build
+      - --build-arg
+      - service=create-appointment
+      - -t
+      - gcr.io/sweng-581-capstone/create-appointment:0.0.1
+      - .
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push
+    waitFor:
+      - build
+    args:
+      [
+        "push",
+        "gcr.io/sweng-581-capstone/create-appointment:0.0.1",
+      ]
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    waitFor:
+      - push
+    args:
+      - beta
+      - run
+      - deploy
+      - create-appointment
+      - --image=gcr.io/sweng-581-capstone/create-appointment:0.0.1
+      - --region=us-central1
+      - --platform=managed
+
+images:
+  - "gcr.io/sweng-581-capstone/create-appointment:0.0.1"
