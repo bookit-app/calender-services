@@ -1,9 +1,7 @@
-"use strict";
+'use strict';
 
-const { isEmpty } = require("lodash");
-
-const APPOINTMENT = "appointments";
-
+const { isEmpty } = require('lodash');
+const APPOINTMENT = 'appointments';
 const supportedSearchParams = [];
 
 class AppointmentRepository {
@@ -21,7 +19,7 @@ class AppointmentRepository {
   async create(appointment) {
     const document = await this.firestore.collection(APPOINTMENT).add({
       ...appointment,
-      state: "BOOKED"
+      state: 'BOOKED'
     });
 
     return document.id;
@@ -70,7 +68,7 @@ class AppointmentRepository {
       // The appointment has been deleted so nothing to update at this point
       if (isEmpty(document) || !document.exists) {
         const err = new Error();
-        err.code = "APPOINTMENT_NOT_EXISTING";
+        err.code = 'APPOINTMENT_NOT_EXISTING';
         return Promise.reject(err);
       }
 
@@ -131,5 +129,5 @@ module.exports = AppointmentRepository;
 module.exports.COLLECTION_NAME = APPOINTMENT;
 module.exports.supportedSearchParams = supportedSearchParams;
 module.exports.appointmentRepositoryInstance = new AppointmentRepository(
-  require("./firestore")
+  require('./firestore')
 );
