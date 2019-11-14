@@ -131,7 +131,7 @@ function buildSearchRequest(collection, options) {
   }
 
   if(options.fromDate){
-    query = query.where('date', '>=', options.date);
+    query = query.where('date', '>=', options.fromDate);
   }
 
   if(options.toDate){

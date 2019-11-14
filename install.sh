@@ -9,3 +9,5 @@ cd ../update-appointment
 npm install
 cd ../configuration-service
 npm install
+cd ../appointment-search
+npm install

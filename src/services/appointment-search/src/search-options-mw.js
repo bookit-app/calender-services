@@ -5,20 +5,13 @@ const { errors } = require('../../../lib/constants');
 const ServiceError = require('../../../lib/util/service-error.js');
 const {
   supportedSearchParams
-} = require('../../../lib/repository/service-provider-repository');
+} = require('../../../lib/repository/appointment-repository');
 
 module.exports = (req, res, next) => {
   if (!isEmpty(req.query)) {
     req.searchOptions = supportedSearchParams.reduce(
       (options, supportedParam) => {
-        const value = supportedParam.expansionFunction(
-          req.query[supportedParam.name]
-        );
-
-        if (value) {
-          options[supportedParam.name] = value;
-        }
-
+        options[supportedParam] = req.query[supportedParam];
         return options;
       },
       {}
