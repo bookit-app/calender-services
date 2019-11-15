@@ -7,7 +7,12 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 
-let repo, createAppointmentMW, validationMW, schema;
+let repo,
+  createAppointmentMW,
+  queryProviderMW,
+  providerClient,
+  validationMW,
+  schema;
 
 function createHandlerMW(req, res, next) {
   repo =
@@ -32,12 +37,28 @@ function validateMW(req, res, next) {
   return validationMW(req, res, next);
 }
 
+function queryProviderHandlerMW(req, res, next) {
+  providerClient =
+    providerClient ||
+    require('./client/provider-client').providerClientInstance;
+  queryProviderMW =
+    queryProviderMW || require('./query-service-provider-mw')(providerClient);
+  return queryProviderMW(req, res, next);
+}
+
 // Generate Route with necessary middleware
 app.post(
   '/appointments',
   require('../../../lib/mw/user-mw'),
   require('../../../lib/mw/trace-id-mw'),
   validateMW,
+  queryProviderHandlerMW,
+  (req, res, next) => {
+    res.appointment = req.body;
+    next();
+  },
+  require('./extract-staff-info-mw'),
+  require('./extract-service-info-mw'),
   createHandlerMW,
   require('./success-mw')
 );

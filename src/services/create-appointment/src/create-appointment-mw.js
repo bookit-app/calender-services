@@ -17,13 +17,17 @@ const { clone } = require('../../../../node_modules/lodash');
 
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
-    const appointment = req.body;
-    appointment.clientId = req.apiUserInfo.id;
-    appointment.status = 'ON-TIME';
-    const docId = await appointmentRepository.create(appointment);
+    res.appointment.clientId = req.apiUserInfo.id;
+    res.appointment.status = {
+      code: 'ON-TIME',
+      comment: ''
+    };
+    res.appointment.businessName = res.serviceProvider.businessName;
+
+    const docId = await appointmentRepository.create(res.appointment);
 
     console.log(
-      `Appointment for client ${appointment.clientId} successfully created`
+      `Appointment for client ${res.appointment.clientId} successfully created`
     );
 
     res.location(`/appointments/${docId}`);
