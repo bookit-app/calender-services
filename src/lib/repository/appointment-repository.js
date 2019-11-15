@@ -98,9 +98,7 @@ class AppointmentRepository {
     if (querySnapshot && !querySnapshot.empty) {
       return querySnapshot.docs.reduce((results, docSnapshot) => {
         const item = processSearchResultItem(docSnapshot);
-        if (!isEmpty(item)) {
-          results.push(item);
-        }
+        results.push(item);
         return results;
       }, []);
     }
