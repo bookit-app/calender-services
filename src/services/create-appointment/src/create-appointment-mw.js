@@ -19,6 +19,7 @@ module.exports = appointmentRepository => async (req, res, next) => {
   try {
     const appointment = req.body;
     appointment.clientId = req.apiUserInfo.id;
+    appointment.status = 'ON-TIME';
     const docId = await appointmentRepository.create(appointment);
 
     console.log(

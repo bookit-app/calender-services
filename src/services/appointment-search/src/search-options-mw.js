@@ -11,11 +11,17 @@ module.exports = (req, res, next) => {
   if (!isEmpty(req.query)) {
     req.searchOptions = supportedSearchParams.reduce(
       (options, supportedParam) => {
-        options[supportedParam] = req.query[supportedParam];
+        if (!isEmpty(req.query[supportedParam])) {
+          options[supportedParam] = req.query[supportedParam];
+        }
         return options;
       },
       {}
     );
+  }
+
+  if (req.query.mine === true || req.query.mine === 'true') {
+    req.searchOptions.clientId = req.apiUserInfo.id;
   }
 
   if (isEmpty(req.searchOptions)) {

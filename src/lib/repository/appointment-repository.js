@@ -2,7 +2,12 @@
 
 const { isEmpty } = require('lodash');
 const APPOINTMENT = 'appointments';
-const supportedSearchParams = ['providerId', 'fromDate', 'toDate', 'staffMemberId'];
+const supportedSearchParams = [
+  'providerId',
+  'fromDate',
+  'toDate',
+  'staffMemberId'
+];
 
 class AppointmentRepository {
   constructor(firestore) {
@@ -106,6 +111,7 @@ class AppointmentRepository {
 
 function processSearchResultItem(documentSnapshot) {
   const data = documentSnapshot.data();
+  data.appointmentId = documentSnapshot.id;
   return data;
 }
 
@@ -122,6 +128,10 @@ function buildSearchRequest(collection, options) {
 
   if (!options) return query;
 
+  if (options.mine) {
+    query = query.where('clientId', '==', options.clientId);
+  }
+
   if (options.providerId) {
     query = query.where('providerId', '==', options.providerId);
   }
@@ -130,11 +140,11 @@ function buildSearchRequest(collection, options) {
     query = query.where('staffMemberId', '==', options.staffMemberId);
   }
 
-  if(options.fromDate){
+  if (options.fromDate) {
     query = query.where('date', '>=', options.fromDate);
   }
 
-  if(options.toDate){
+  if (options.toDate) {
     query = query.where('date', '<=', options.toDate);
   }
 
