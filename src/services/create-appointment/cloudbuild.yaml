@@ -38,6 +38,7 @@ steps:
       - --image=gcr.io/sweng-581-capstone/create-appointment:0.0.1
       - --region=us-central1
       - --platform=managed
+      - --update-env-vars=PROVIDER_SERVICE_HOST=https://query-service-provider-vllmtwjp2a-uc.a.run.app
 
 images:
   - "gcr.io/sweng-581-capstone/create-appointment:0.0.1"
