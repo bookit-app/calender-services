@@ -1,15 +1,13 @@
 {
-  "name": "create-appointment",
-  "description": "Create Appointment",
+  "name": "appointment-search-service",
+  "description": "Appointment Search Service",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
-    "express": "^4.17.1",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.5"
+    "express": "^4.17.1"
   },
   "devDependencies": {},
   "engines": {

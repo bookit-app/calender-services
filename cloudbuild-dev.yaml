@@ -29,6 +29,12 @@ steps:
     dir: src/services/update-appointment
 
   - name: "node:10.16.3"
+    id: appointment-search-install
+    entrypoint: npm
+    args: ["install"]
+    dir: src/services/appointment-search
+
+  - name: "node:10.16.3"
     id: lint
     entrypoint: npm
     args: ["run", "lint"]

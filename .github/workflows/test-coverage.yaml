@@ -1,4 +1,4 @@
-on: ["push", "pull_request"]
+on: ['push', 'pull_request']
 
 name: Test Coveralls
 
@@ -14,9 +14,12 @@ jobs:
         with:
           version: 10.x
 
-      - name: npm install, test
+      - name: Install
+        run: ./install.sh
+        shell: bash
+
+      - name: test
         run: |
-          npm install
           npm test
 
       - name: Coveralls

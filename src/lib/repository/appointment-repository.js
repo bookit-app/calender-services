@@ -1,8 +1,13 @@
 'use strict';
 
 const { isEmpty } = require('lodash');
-
 const APPOINTMENT = 'appointments';
+const supportedSearchParams = [
+  'providerId',
+  'fromDate',
+  'toDate',
+  'staffMemberId'
+];
 
 class AppointmentRepository {
   constructor(firestore) {
@@ -75,10 +80,78 @@ class AppointmentRepository {
       await t.set(documentReference, appointment, { merge: true });
     });
   }
+
+  /**
+   * Search for Appointments based on the input options
+   * available options are defined in supportedSearchParams
+   *
+   * @param {*} options
+   * @returns
+   * @memberof ServiceProviderRepository
+   */
+  async search(options) {
+    const collection = this.firestore.collection(APPOINTMENT);
+    const query = buildSearchRequest(collection, options);
+
+    const querySnapshot = await query.get();
+
+    if (querySnapshot && !querySnapshot.empty) {
+      return querySnapshot.docs.reduce((results, docSnapshot) => {
+        const item = processSearchResultItem(docSnapshot);
+        results.push(item);
+        return results;
+      }, []);
+    }
+
+    return [];
+  }
+}
+
+function processSearchResultItem(documentSnapshot) {
+  const data = documentSnapshot.data();
+  data.appointmentId = documentSnapshot.id;
+  return data;
+}
+
+/**
+ * Processes the options for query and builds a firestore
+ * query request which can be used
+ *
+ * @param {*} collection
+ * @param {*} options
+ * @returns {Query}
+ */
+function buildSearchRequest(collection, options) {
+  let query = collection;
+
+  if (!options) return query;
+
+  if (options.mine) {
+    query = query.where('clientId', '==', options.clientId);
+  }
+
+  if (options.providerId) {
+    query = query.where('providerId', '==', options.providerId);
+  }
+
+  if (options.staffMemberId) {
+    query = query.where('staffMemberId', '==', options.staffMemberId);
+  }
+
+  if (options.fromDate) {
+    query = query.where('date', '>=', options.fromDate);
+  }
+
+  if (options.toDate) {
+    query = query.where('date', '<=', options.toDate);
+  }
+
+  return query;
 }
 
 module.exports = AppointmentRepository;
 module.exports.COLLECTION_NAME = APPOINTMENT;
+module.exports.supportedSearchParams = supportedSearchParams;
 module.exports.appointmentRepositoryInstance = new AppointmentRepository(
   require('./firestore')
 );

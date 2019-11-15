@@ -23,12 +23,20 @@ const req = {
 };
 
 const res = {
-  location: stub()
+  location: stub(),
+  serviceProvider: {
+    businessName: 'TEST-PROVIDER-NAME'
+  },
+  appointment: {}
 };
 
 const next = stub();
 
 describe('create-appointment: unit tests', () => {
+  beforeEach(() => {
+    res.appointment = req.body;
+  });
+
   afterEach(() => {
     next.resetHistory();
     res.location.resetHistory();
@@ -45,7 +53,12 @@ describe('create-appointment: unit tests', () => {
           staffMemberId: 'TEST-STAFF-ID',
           providerId: 'TEST-PROVIDER-Id',
           time: '12:30',
-          date: '12-10-2019'
+          date: '12-10-2019',
+          businessName: 'TEST-PROVIDER-NAME',
+          status: {
+            code: 'ON-TIME',
+            comment: ''
+          }
         })
       ).to.be.true;
       expect(res.location.calledWith('/appointments/DOC-ID')).to.be.true;
@@ -63,7 +76,12 @@ describe('create-appointment: unit tests', () => {
           staffMemberId: 'TEST-STAFF-ID',
           providerId: 'TEST-PROVIDER-Id',
           time: '12:30',
-          date: '12-10-2019'
+          date: '12-10-2019',
+          businessName: 'TEST-PROVIDER-NAME',
+          status: {
+            code: 'ON-TIME',
+            comment: ''
+          }
         })
       ).to.be.true;
       expect(res.location.called).to.be.false;

@@ -170,4 +170,135 @@ describe('appointment-repository: unit tests', () => {
       );
     });
   });
+
+  context('search', () => {
+    const options = {
+      providerId: 'TEST-PROVIDER-Id',
+      fromDate: '2020-01-01',
+      staffMemberId: 'TEST-STAFF-ID',
+      toDate: '2020-01-10',
+      mine: true
+    };
+
+    const results = [
+      {
+        id: 'appointment-id',
+        data: () => appointment
+      }
+    ];
+
+    it('should return the results', () => {
+      const snapshot = {
+        empty: false,
+        docs: results
+      };
+
+      const query = collectionReference;
+      query.where.returns(query);
+      query.select.returns(query);
+      query.get.resolves(snapshot);
+
+      firestore.collection.returns(query);
+
+      expect(repo.search(options)).to.be.fulfilled.then(data => {
+        expect(data).to.deep.equal([
+          {
+            appointmentId: 'appointment-id',
+            staffMemberId: 'TEST-STAFF-ID',
+            providerId: 'TEST-PROVIDER-Id',
+            clientId: 'TEST-CLIENT-ID',
+            time: '12:30',
+            date: '12-10-2019'
+          }
+        ]);
+        expect(query.where.calledWith('providerId')).to.be.true;
+        expect(query.where.calledWith('clientId')).to.be.true;
+        expect(query.where.calledWith('staffMemberId')).to.be.true;
+        expect(query.where.calledWith('date')).to.be.true;
+      });
+    });
+
+    it('should return and empty array', () => {
+      const snapshot = {
+        empty: true
+      };
+
+      const query = collectionReference;
+      query.where.returns(query);
+      query.select.returns(query);
+      query.get.resolves(snapshot);
+
+      firestore.collection.returns(query);
+
+      expect(repo.search(options)).to.be.fulfilled.then(data => {
+        expect(data).to.deep.equal([]);
+        expect(query.where.calledWith('providerId')).to.be.true;
+        expect(query.where.calledWith('clientId')).to.be.true;
+        expect(query.where.calledWith('staffMemberId')).to.be.true;
+        expect(query.where.calledWith('date')).to.be.true;
+      });
+    });
+
+    it('should return all records if empty options are provided', () => {
+      const snapshot = {
+        empty: false,
+        docs: results
+      };
+
+      const query = collectionReference;
+      query.where.returns(query);
+      query.select.returns(query);
+      query.get.resolves(snapshot);
+
+      firestore.collection.returns(query);
+
+      expect(repo.search({})).to.be.fulfilled.then(data => {
+        expect(data).to.deep.equal([
+          {
+            appointmentId: 'appointment-id',
+            staffMemberId: 'TEST-STAFF-ID',
+            providerId: 'TEST-PROVIDER-Id',
+            clientId: 'TEST-CLIENT-ID',
+            time: '12:30',
+            date: '12-10-2019'
+          }
+        ]);
+        expect(query.where.calledWith('providerId')).to.be.false;
+        expect(query.where.calledWith('clientId')).to.be.false;
+        expect(query.where.calledWith('staffMemberId')).to.be.false;
+        expect(query.where.calledWith('date')).to.be.false;
+      });
+    });
+
+    it('should return and all records if no options are provided', () => {
+      const snapshot = {
+        empty: false,
+        docs: results
+      };
+
+      const query = collectionReference;
+      query.where.returns(query);
+      query.select.returns(query);
+      query.get.resolves(snapshot);
+
+      firestore.collection.returns(query);
+
+      expect(repo.search()).to.be.fulfilled.then(data => {
+        expect(data).to.deep.equal([
+          {
+            appointmentId: 'appointment-id',
+            staffMemberId: 'TEST-STAFF-ID',
+            providerId: 'TEST-PROVIDER-Id',
+            clientId: 'TEST-CLIENT-ID',
+            time: '12:30',
+            date: '12-10-2019'
+          }
+        ]);
+        expect(query.where.calledWith('providerId')).to.be.false;
+        expect(query.where.calledWith('clientId')).to.be.false;
+        expect(query.where.calledWith('staffMemberId')).to.be.false;
+        expect(query.where.calledWith('date')).to.be.false;
+      });
+    });
+  });
 });
