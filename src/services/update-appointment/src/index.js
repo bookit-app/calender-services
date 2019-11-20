@@ -16,15 +16,9 @@ function updateHandlerMW(req, res, next) {
 }
 
 function validateHandlerMW(req, res, next) {
-  repo =
-    repo ||
-    require('../../../lib/repository/appointment-repository')
-      .appointmentRepositoryInstance;
-
   schema = schema || require('./payload-validations').schema;
   validateMW =
     validateMW || require('../../../lib/mw/payload-validation-mw')(schema);
-
   return validateMW(req, res, next);
 }
 
