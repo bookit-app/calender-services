@@ -11,7 +11,7 @@ const { NOT_FOUND, OK } = require('../../../lib/constants').statusCodes;
  * @returns
  */
 module.exports = (req, res) => {
-  isEmpty(res.appointment) || res.appointment.clientId !== req.apiUserInfo.id
+  isEmpty(res.appointment)
     ? res.sendStatus(NOT_FOUND)
     : res.status(OK).send(res.appointment);
 };
