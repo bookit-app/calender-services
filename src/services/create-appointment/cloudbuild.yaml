@@ -14,7 +14,7 @@ steps:
       - --build-arg
       - service=create-appointment
       - -t
-      - gcr.io/sweng-581-capstone/create-appointment:0.0.1
+      - gcr.io/bookit-app-260021/create-appointment:0.0.1
       - .
 
   - name: "gcr.io/cloud-builders/docker"
@@ -24,7 +24,7 @@ steps:
     args:
       [
         "push",
-        "gcr.io/sweng-581-capstone/create-appointment:0.0.1",
+        "gcr.io/bookit-app-260021/create-appointment:0.0.1",
       ]
 
   - name: "gcr.io/cloud-builders/gcloud"
@@ -35,10 +35,10 @@ steps:
       - run
       - deploy
       - create-appointment
-      - --image=gcr.io/sweng-581-capstone/create-appointment:0.0.1
-      - --region=us-central1
+      - --image=gcr.io/bookit-app-260021/create-appointment:0.0.1
+      - --region=us-east1
       - --platform=managed
       - --update-env-vars=PROVIDER_SERVICE_HOST=https://query-service-provider-vllmtwjp2a-uc.a.run.app
 
 images:
-  - "gcr.io/sweng-581-capstone/create-appointment:0.0.1"
+  - "gcr.io/bookit-app-260021/create-appointment:0.0.1"
