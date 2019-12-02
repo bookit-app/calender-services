@@ -15,7 +15,9 @@ For additional details on the APIs refer to the [API Gateway Repo](https://githu
 
 This repo contains a set of deployable services to handle BookIt User Appointment Operations. The repo is designed as a mono-repo to house all services necessary to support booking and updating an appointment as it has been defined for the BookIt app. Each service is intended to be individually deployed as a standalone microservice to the cloud to be consumed by the client applications.
 
-[![design](./docs/data.png)](./docs/data.png)
+The following data flow diagram represents how data is sent and recieved throughout the calendar services.
+
+[![design](./docs/data.png)](./docs/data.png
 
 The design is based around how [expressjs](https://expressjs.com) works and hence everything is essentially decomposed down into a setup of middleware. The following describes each component of the diagram in more detail.
 
