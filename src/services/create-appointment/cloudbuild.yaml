@@ -38,7 +38,7 @@ steps:
       - --image=gcr.io/bookit-app-260021/create-appointment:0.0.1
       - --region=us-east1
       - --platform=managed
-      - --update-env-vars=PROVIDER_SERVICE_HOST=https://query-service-provider-vllmtwjp2a-uc.a.run.app
+      - --update-env-vars=PROVIDER_SERVICE_HOST=https://query-service-provider-fjwomrdjca-ue.a.run.app
 
 images:
   - "gcr.io/bookit-app-260021/create-appointment:0.0.1"
