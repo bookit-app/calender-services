@@ -39,6 +39,8 @@ describe('appointment-repository: unit tests', () => {
     documentReference.create.resetHistory();
     collectionReference.doc.resetHistory();
     collectionReference.where.resetHistory();
+    collectionReference.select.resetHistory();
+    collectionReference.get.resetHistory();
     documentReference.collection.resetHistory();
     documentReference.create.resetHistory();
     collectionReference.add.resetHistory();
@@ -177,7 +179,7 @@ describe('appointment-repository: unit tests', () => {
       fromDate: '2020-01-01',
       staffMemberId: 'TEST-STAFF-ID',
       toDate: '2020-01-10',
-      mine: true
+      clientId: 'CLIENTID'
     };
 
     const results = [
