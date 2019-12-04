@@ -85,6 +85,10 @@ The update appointment service exposes a route to **PATCH** appointments. When a
 
 - **payload-validations**: This contains the Payload JSON Schema definition which is provided to the **payload-validation-mw** to verify that the body of the HTTP request is correct.
 
+#### Update appointment sequence diagram
+
+![design](./docs/updateappointmentsequence.png)
+
 ### query-appointment-service
 
 The query appointment service exposes a route to **GET** a the appointment associated with the current user. When a request is received it will trigger a set of express MW and determine what to do. The service exposes the route at `/appointment`. This route is configured with the middleware as described within the [query-appointment-service index.js](./src/services/query-appointment/src/index.js) file.
