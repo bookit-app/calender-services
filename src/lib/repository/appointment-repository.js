@@ -126,7 +126,7 @@ function buildSearchRequest(collection, options) {
 
   if (!options) return query;
 
-  if (options.mine) {
+  if (options.clientId) {
     query = query.where('clientId', '==', options.clientId);
   }
 
