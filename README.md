@@ -23,7 +23,6 @@ This repo contains a set of deployable services to handle BookIt User Appointmen
 The following data flow diagram represents how data is sent and recieved throughout the calendar services.
 
 ![design](./docs/datadiagram.png)
-
 The design is based around how [expressjs](https://expressjs.com) works and hence everything is essentially decomposed down into a setup of middleware. The following describes each component of the diagram in more detail.
 
 ###
@@ -70,6 +69,10 @@ The create appointment service exposes a route to **POST** appointments. When a 
   - **success-mw**: Triggered as the last MW in the chain and if triggered means that everything was fine and the profile was successfully created. This MW just sends an HTTP 201 status code back to the consumer.
 
 - **payload-validations**: This contains the Payload JSON Schema definition which is provided to the **payload-validation-mw** to verify that the body of the HTTP request is correct.
+
+#### Create appointment sequence diagram
+
+![design](./docs/createappointmentsequencediagram.png)
 
 ### update-appointment-service
 
