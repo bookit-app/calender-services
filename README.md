@@ -17,7 +17,7 @@ This repo contains a set of deployable services to handle BookIt User Appointmen
 
 The following data flow diagram represents how data is sent and recieved throughout the calendar services.
 
-[![design](./docs/data.png)](./docs/data.png
+[![design](./docs/data.png)
 
 The design is based around how [expressjs](https://expressjs.com) works and hence everything is essentially decomposed down into a setup of middleware. The following describes each component of the diagram in more detail.
 
