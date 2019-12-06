@@ -7,7 +7,12 @@ const { clone } = require('lodash');
 module.exports = appointmentRepository => async (req, res, next) => {
   try {
     const appointment = req.body;
-    await appointmentRepository.update(req.params.appointmentId, appointment);
+
+    if (appointment.state === 'CANCELLED') {
+      await appointmentRepository.delete(req.params.appointmentId);
+    } else {
+      await appointmentRepository.update(req.params.appointmentId, appointment);
+    }
 
     next();
   } catch (err) {
