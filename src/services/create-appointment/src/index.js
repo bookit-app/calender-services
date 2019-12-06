@@ -52,13 +52,13 @@ app.post(
   require('../../../lib/mw/user-mw'),
   require('../../../lib/mw/trace-id-mw'),
   validateMW,
-  //queryProviderHandlerMW,
+  queryProviderHandlerMW,
   (req, res, next) => {
     res.appointment = req.body;
     next();
   },
-  //require('./extract-staff-info-mw'),
-  //require('./extract-service-info-mw'),
+  require('./extract-staff-info-mw'),
+  require('./extract-service-info-mw'),
   createHandlerMW,
   require('./success-mw')
 );
