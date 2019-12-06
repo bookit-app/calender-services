@@ -4,7 +4,8 @@ const { expect } = require('chai');
 const { stub } = require('sinon');
 const { errors } = require('../../../src/lib/constants');
 const repoStub = {
-  update: stub()
+  update: stub(),
+  delete: stub()
 };
 const mw = require('../../../src/services/update-appointment/src/update-appointment-mw')(
   repoStub
@@ -33,7 +34,7 @@ describe('update-appointment: unit tests', () => {
     repoStub.update.resetHistory();
   });
 
-  it('should respond with a 200 when profile is updated', () => {
+  it('should respond with a 200 when appointment is updated', () => {
     repoStub.update.resolves();
     expect(mw(req, res, next)).to.be.fulfilled.then(() => {
       expect(repoStub.update.called).to.be.true;
@@ -43,6 +44,31 @@ describe('update-appointment: unit tests', () => {
           date: '12-10-2019'
         })
       ).to.be.true;
+      expect(next.called).to.be.true;
+    });
+  });
+
+  it('should respond with a 200 and delete appointment when status is CANCELLED', () => {
+    repoStub.delete.resolves();
+    expect(
+      mw(
+        {
+          apiUserInfo: {
+            id: 'TEST-USER'
+          },
+          params: {
+            appointmentId: 'TEST-APPT'
+          },
+          body: {
+            state: 'CANCELLED'
+          }
+        },
+        res,
+        next
+      )
+    ).to.be.fulfilled.then(() => {
+      expect(repoStub.update.called).to.be.true;
+      expect(repoStub.delete.calledWith('TEST-APPT')).to.be.true;
       expect(next.called).to.be.true;
     });
   });

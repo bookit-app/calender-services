@@ -22,12 +22,34 @@ class AppointmentRepository {
    * @memberof AppointmentRepository
    */
   async create(appointment) {
-    const document = await this.firestore.collection(APPOINTMENT).add({
-      ...appointment,
-      state: 'BOOKED'
-    });
+    const snapshotReference = this.firestore
+      .collection(APPOINTMENT)
+      .where('staffMemberId', '==', appointment.staffMemberId)
+      .where('date', '==', appointment.date)
+      .where('time', '==', appointment.time);
 
-    return document.id;
+    return this.firestore.runTransaction(async t => {
+      const snapshot = await snapshotReference.get();
+
+      if (snapshot && !snapshot.empty) {
+        // There is already an existing appointment
+        const err = new Error();
+        err.code = 'APPOINTMENT_ALREADY_EXISTING';
+        err.message = 'Appointment for time slot already exists.';
+        return Promise.reject(err);
+      }
+
+      const documentReference = this.firestore
+        .collection(APPOINTMENT)
+        .doc();
+
+      await t.create(documentReference, {
+        ...appointment,
+        state: 'BOOKED'
+      });
+
+      return documentReference.id;
+    });
   }
 
   /**

@@ -49,19 +49,45 @@ describe('appointment-repository: unit tests', () => {
   });
 
   context('create', () => {
-    it('create should resolve', () => {
-      collectionReference.add.resolves({ id: 'TEST' });
-      return expect(repo.create(appointment)).to.be.fulfilled.then(
-        documentId => {
-          expect(
-            collectionReference.add.calledWith({
+    it('should resolve if not existing appointment', () => {
+      firestore.runTransaction.callsFake(
+        async func => await func(documentReference)
+      );
+      collectionReference.where.returns(collectionReference);
+      collectionReference.get.resolves({
+        empty: true
+      });
+
+      documentReference.create.resolves();
+      collectionReference.doc.returns({ id: 'TEST' });
+      expect(repo.create(appointment)).to.be.fulfilled.then(documentId => {
+        expect(
+          documentReference.create.calledWith(
+            { id: 'TEST' },
+            {
               ...appointment,
               state: 'BOOKED'
-            })
-          ).to.be.true;
-          expect(documentId).to.equal('TEST');
-        }
+            }
+          )
+        ).to.be.true;
+        expect(documentId).to.equal('TEST');
+        collectionReference.doc.returns(documentReference);
+      });
+    });
+
+    it('should reject if appointment does exists', () => {
+      firestore.runTransaction.callsFake(
+        async func => await func(documentReference)
       );
+      collectionReference.where.returns(collectionReference);
+      collectionReference.get.resolves({
+        empty: false
+      });
+
+      expect(repo.create(appointment)).to.be.rejected.then(err => {
+        expect(documentReference.create.called).to.be.false;
+        expect(err.code).to.equal('APPOINTMENT_ALREADY_EXISTING');
+      });
     });
   });
 

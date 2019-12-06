@@ -22,7 +22,7 @@ module.exports = appointmentRepository => async (req, res, next) => {
       code: 'ON-TIME',
       comment: ''
     };
-    res.appointment.businessName = res.serviceProvider.businessName;
+    // res.appointment.businessName = res.serviceProvider.businessName;
 
     const docId = await appointmentRepository.create(res.appointment);
 
