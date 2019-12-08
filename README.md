@@ -3,22 +3,13 @@
 
 # calender-services
 
-The services defined within this repo generate REST endpoints as follows:
-
-- **POST /appointment**: To enable an appointment to be created. Refer to the [schema](./src/services/create-appointment/src/payload-validations.js) for details on the expected payload
-- **GET /appointment**: To enable a specific profile to be retrieved
-- **PATCH /appointment**: To enable a specific profile to be updated. Refer to the [schema](./src/services/update-appointment/src/payload-validations.js) for details on the expected payload
-
-For additional details on the APIs refer to the [API Gateway Repo](https://github.com/bookit-app/api-gateway) as this is how the APIs are in the end exposed for the consumers.
+This repo contains a set of deployable services to handle BookIt User Appointment Operations. The repo is designed as a mono-repo to house all services necessary to support booking and updating an appointment as it has been defined for the BookIt app. Each service is intended to be individually deployed as a standalone microservice to the cloud to be consumed by the client applications.
 
 ## Design
 
 ![design](./docs/appointmentservices.png)
 
-This repo contains a set of deployable services to handle BookIt User Appointment Operations. The repo is designed as a mono-repo to house all services necessary to support booking and updating an appointment as it has been defined for the BookIt app. Each service is intended to be individually deployed as a standalone microservice to the cloud to be consumed by the client applications.
-
 ### Data Flow Diagram
-
 
 The following data flow diagram represents how data is sent and recieved throughout the calendar services.
 
@@ -107,14 +98,31 @@ The delete appointment service exposes a route to **DELETE** appointments. When 
   - **delete-appointment-mw**: Assumes that all data validations and requirements to allow for deleting an appointment have been achieved, which is ensured via the configuration of the express route. It is essentially a wrapper around the appointment-repository delete function to trigger the removal of the profile data from cloud firestore.
   - **query-profile-mw**: When deleting an appointment we verify that it exists prior to attempting a delete. This MW will verify that the appointment for the logged in user exists and if so allow the MW chain to continue. Otherwise it will generate a 404 response.
   - **success-mw**: Triggered as the last MW in the chain and if triggered means that everything was fine and the profile was successfully deleted. This MW just sends and HTTP 204 status code back to the consumer.
+  
+## REST APIs
 
-## Security
+Each service depicted in the design diagram exposes HTTP(s) REST APIs to be consumed by either the client application, other internal Google Cloud Services, or for service to service internal API communication. The requests that are exposed are found within the component descriptions of the [Design](#Design). Additionally, refer to the [API Gateway Repo](https://github.com/bookit-app/api-gateway) OpenAPI specification for the APIs which are exposed and consumed from the client application (Outside of the GCP Infrastructure).
 
-The services themselves are not containing any logic pertaining to security and are not therefore assuming any particular approach to security. Security is delegated to the environment which they are deployed and running. The only expectation is that there be the appropriate user details provided as part of the HTTP Header so that it can identity the user ID and email to inject into the necessary queries. As these services are deployed into an environment with Cloud Endpoints and are running on Cloud Run within Google Cloud Platform they expect that the `X-Endpoint-API-UserInfo` header be provided with the user data as described within the [Google Documentation](https://cloud.google.com/endpoints/docs/openapi/authenticating-users-firebase).
+The services defined within this repo generate REST endpoints as follows:
+- **POST /appointment**: To enable an appointment to be created. Refer to the [schema](./src/services/create-appointment/src/payload-validations.js) for details on the expected payload
+- **GET /appointment**: To enable a specific profile to be retrieved
+- **PATCH /appointment**: To enable a specific profile to be updated. Refer to the [schema](./src/services/update-appointment/src/payload-validations.js) for details on the expected payload
 
-## Deployment
+## Repository Organization
 
-Deployment occurs via Cloud Build. There are 2 phases associated with this:
+As these services are all implemented in nodejs npm is used to manage the dependencies. However, as this is a mono-repo and contains several microservice applications that will be deployed as docker containers it has been designed in a away to allow each service to be built into a container containing only the necessary dependencies that it specifically requires. This is done to try and keep the image size to a minimum. Dependencies are managed as follows:
 
-- When PR's are open a build verification occurs and is required to pass prior to allowing merge - Refer [cloudbuild-dev.yaml](/cloudbuild-dev.yaml)
-- When merge into master a build and deployment will occur - Refer [cloudbuild.yaml](/cloudbuild.yaml)
+- **Global Dependencies**: There are dependencies that every service leverages. These have been defined in the `package.json` at the root of the project and each service leverages them as this ensures consistency across the deployments as well as ensures that shared libraries leverage the same versions across all.
+- **Local Dependencies**: These are dependencies specific to an individual service and would only be contained within the deployment. These are managed within the `package.json` file within the services directory under src/service/<service-name>.
+
+## Code Quality
+
+The following practices were put in place to ensure high quality code is delivered:
+
+- Integration with husky inorder to verify what is being pushed and committed to github. Husky is a tool that plugs into local git hooks and we leverage it for processing verifications as pre-commit hooks. For the calender-services hooks are in place to ensure for unit-tests pass, code coverage is acceptable, and linting is enforced (code syntax, formatting, etc) on commit. The settings are defined within the main [package.json](./package.json)
+
+- We have enforced a code review processing within github using the Pull Request process. When pull requests are opened the following occurs:
+  - Integration with [Coveralls](https://coveralls.io/github/bookit-app/calender-services?branch=master) to track unit test code coverage over time to ensure we can tracking well with our implemented unit tests - Also see badge linked at the top of the repo
+  - Integration with [Codacy](https://www.codacy.com/gh/bookit-app/calender-services?utm_source=github.com&utm_medium=referral&utm_content=bookit-app/calender-services&utm_campaign=Badge_Grade) which is a code quality tool and provides insights in to overall code quality based on a scoring metric, analyzes complexity, technical debt, formatting issues and so one. - Also see badge linked at the top of the repo
+  - Build validation is performed where linting, and unit tests are executed agin to ensure everything is still passing
+  - If the above checks do not meet standards set for the project and pass than the pull request cannot be merged into the master branch. This alleviates that we have undesirable code being merged onto the master branch and deployed to the production landscape
